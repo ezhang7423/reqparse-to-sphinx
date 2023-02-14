@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue/dist/vue.js"></script>
+    <style>
+        textarea {
+            height: 80vh;
+            width: 40%
+        }
+
+        #app {
+            padding-top: 5vh;
+            text-align: center;
+        }
+    </style>
+</head>
+
+<body>
+    <div id="app">
+        <textarea placeholder="input here" v-model='raw'></textarea>
+        <textarea placeholder="python multiline comes out here" v-model='pythonText'></textarea>
+    </div>
+
+</body>
+
+
+<script>
+    var app = new Vue({
+        el: '#app',
+        data: {
+            raw: '',
+            pythonText: '',
+            first: false
+        },
+        watch: {
+            raw() {
+                if (this.first) {
+                    this.first = false
+                    return;
+                }
+                let lineList = this.raw.split('\n')
+                let res = ``
+                for (let line of lineList) {
+                    res += `"${line} " \\\n`
+                }
+                this.first = true
+                this.pythonText = res.slice(0, res.length - 3)
+                // this.first = false;
+            },
+            pythonText() {
+                if (this.first) {
+                    this.first = false
+                    return;
+                }
+                let lineList = this.pythonText.split('\n')
+                let res = ``
+
+                lineList.forEach(function (i, idx) {
+                    if (idx === lineList.length - 1) {
+                        res += i.trim().slice(1, i.trim().length - 1)
+                    }
+                    else {
+                        res += i.trim().slice(1, i.trim().length - 3) + '\n'
+                    }
+                });
+                this.first = true
+                this.raw = res
+                // this.first = false
+            },
+
+        },
+    })
+</script>
+
+</html>
