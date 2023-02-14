@@ -21,55 +21,63 @@
 
 <body>
     <div id="app">
-        <textarea placeholder="input here" v-model='raw'></textarea>
-        <textarea placeholder="python multiline comes out here" v-model='pythonText'></textarea>
+        <textarea placeholder="reqparse here" v-model='raw'></textarea>
+        <textarea placeholder="restructured sphinx comes out here" :value='pythonText'></textarea>
     </div>
 
 </body>
-
-
 <script>
     var app = new Vue({
         el: '#app',
         data: {
-            raw: '',
+            raw: `parser = reqparse.RequestParser()
+parser.add_argument("email_id", type=int, required=False)
+parser.add_argument("email", type=str, required=False)
+parser.add_argument("api_key", type=str, required=False)
+`,
             pythonText: '',
             first: false
         },
-        watch: {
-            raw() {
-                if (this.first) {
-                    this.first = false
-                    return;
-                }
+        mounted() {
+            this.transformPython();
+        },
+        methods: {
+            transformPython() {
+                // if (this.first) {
+                //     this.first = false
+                //     return;
+                // }
                 let lineList = this.raw.split('\n')
                 let res = ``
                 for (let line of lineList) {
-                    res += `"${line} " \\\n`
+                    if (line.startsWith('parser.add_argument("')) {
+                        // construct dictionary
+                        var dict = {};
+                        var regex = /\(([^)]+)\)/;
+                        var match = regex.exec(line);
+                        var keyValuePairs = match[1].split(', ');
+                        for (var i = 0; i < keyValuePairs.length; i++) {
+                            var keyValue = keyValuePairs[i].split('=');
+                            dict[keyValue[0]] = keyValue[1];
+                        }
+                        // write rst
+                        let name = Object.keys(dict)[0].replace(/^"(.*)"$/, '$1') // replace doublequotes https://stackoverflow.com/questions/19156148/i-want-to-remove-double-quotes-from-a-string                                                
+                        let optional = dict['required'] == 'False' ? ', optional' : ''
+                        res += `:param ${name}:\n`
+                        res += `:type ${name}: ${dict['type']}${optional}\n`
+                        console.log(dict)
+                    }
+                    //     res += `"${line} " \\\n`
                 }
-                this.first = true
-                this.pythonText = res.slice(0, res.length - 3)
-                // this.first = false;
+                this.pythonText = res;
+            }
+        },
+        watch: {
+            raw() {
+                this.transformPython()
             },
             pythonText() {
-                if (this.first) {
-                    this.first = false
-                    return;
-                }
-                let lineList = this.pythonText.split('\n')
-                let res = ``
 
-                lineList.forEach(function (i, idx) {
-                    if (idx === lineList.length - 1) {
-                        res += i.trim().slice(1, i.trim().length - 1)
-                    }
-                    else {
-                        res += i.trim().slice(1, i.trim().length - 3) + '\n'
-                    }
-                });
-                this.first = true
-                this.raw = res
-                // this.first = false
             },
 
         },
