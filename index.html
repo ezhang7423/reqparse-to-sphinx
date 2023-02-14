@@ -62,7 +62,7 @@ parser.add_argument("api_key", type=str, required=False)
                         }
                         // write rst
                         let name = Object.keys(dict)[0].replace(/^"(.*)"$/, '$1') // replace doublequotes https://stackoverflow.com/questions/19156148/i-want-to-remove-double-quotes-from-a-string                                                
-                        let optional = dict['required'] == 'False' ? ', optional' : ''
+                        let optional = dict['required'] == 'True' ? '' : ', optional'
                         res += `:param ${name}:\n`
                         res += `:type ${name}: ${dict['type']}${optional}\n`
                     }
