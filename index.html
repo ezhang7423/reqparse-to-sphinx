@@ -65,10 +65,10 @@ parser.add_argument("api_key", type=str, required=False)
                         let optional = dict['required'] == 'False' ? ', optional' : ''
                         res += `:param ${name}:\n`
                         res += `:type ${name}: ${dict['type']}${optional}\n`
-                        console.log(dict)
                     }
                     //     res += `"${line} " \\\n`
                 }
+                res += ':return:\n'
                 this.pythonText = res;
             }
         },
